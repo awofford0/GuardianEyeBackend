@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace aspnetbackend
 {
@@ -7,6 +8,7 @@ namespace aspnetbackend
         public DateTime Date { get; set; }
 
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public int TemperatureC { get; set; }
 
