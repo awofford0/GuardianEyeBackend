@@ -9,6 +9,8 @@ namespace aspnetbackend
 
         public string ImageName {  get; set; } 
 
+        public string? ImageUrl { get; set; }
+
         [NotMapped]
         public IFormFile? Image { get; set; }
 

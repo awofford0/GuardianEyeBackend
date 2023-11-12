@@ -1,6 +1,14 @@
 using aspnetbackend;
+using Elfie.Serialization;
+using FirebaseAdmin;
+using FirebaseAdmin.Messaging;
+using Google.Apis.Auth.OAuth2;
+using Humanizer.Localisation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Writers;
+using Microsoft.VisualBasic.FileIO;
+using Newtonsoft.Json.Linq;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -14,12 +22,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+app.UseStaticFiles();
+app.UseSwagger();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseDirectoryBrowser();
-    app.UseSwagger();
     app.UseSwaggerUI();
 }
 
@@ -30,3 +37,14 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+async void ReadFirebaseAdminSDK()
+{
+    if (FirebaseMessaging.DefaultInstance == null)
+    {
+        FirebaseApp.Create(new AppOptions()
+        {
+            Credential = GoogleCredential.FromJson(File.ReadAllText("C:\\Users\\adamw\\source\\repos\\GuardianEyeBackend\\Resources\\Raw\\guardianeye-29abb-firebase-adminsdk-ia13w-0dfbc93058.json"))
+        });
+    }
+}

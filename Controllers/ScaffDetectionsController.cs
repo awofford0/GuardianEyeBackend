@@ -9,7 +9,7 @@ using aspnetbackend;
 
 namespace aspnetbackend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("/")]
     [ApiController]
     public class ScaffDetectionsController : ControllerBase
     {
@@ -85,21 +85,23 @@ namespace aspnetbackend.Controllers
         [HttpPost]
         public async Task<ActionResult<Detection>> PostDetection([FromForm] Detection detection)
         {
+            string path = null;
+            if (detection.Image != null)
+            {
+                string newImageName = string.Concat(detection.Image.FileName, ".jpg");
+                path = Path.Combine(@"wwwroot\images", newImageName);
+                detection.ImageUrl = Path.Combine("https://verified-duly-katydid.ngrok-free.app//images", newImageName);
+            }
+            
 
-            //if (detection.Image == null)
-            //{
-            //    return Problem("File upload not found");
-            //}
-            //string path = Path.Combine("c:\\ImageDB\\", detection.Image.FileName);
-
-            //using (var stream = new FileStream(path, FileMode.Create))
-            //{
-            //    await detection.Image.CopyToAsync(stream);
-            //}
-            //if (_context.Detections == null)
-            //{
-            //    return Problem("Entity set 'DetectionContext.Detections'  is null.");
-            //}
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await detection.Image.CopyToAsync(stream);
+            }
+            if (_context.Detections == null)
+            {
+                return Problem("Entity set 'DetectionContext.Detections'  is null.");
+            }
             _context.Detections.Add(detection);
             try
             {
