@@ -7,7 +7,7 @@ namespace aspnetbackend
     {
         public string Category { get; set; }
 
-        public string ImageName {  get; set; } 
+        public string? ImageName {  get; set; } 
 
         public string? ImageUrl { get; set; }
 

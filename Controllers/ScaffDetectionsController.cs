@@ -6,6 +6,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using aspnetbackend;
+using System.Text.Json;
+using System.Configuration;
+using NuGet.Common;
+using FirebaseAdmin.Messaging;
+using System.IO;
 
 namespace aspnetbackend.Controllers
 {
@@ -90,9 +95,9 @@ namespace aspnetbackend.Controllers
             {
                 string newImageName = string.Concat(detection.Image.FileName, ".jpg");
                 path = Path.Combine(@"wwwroot\images", newImageName);
+                detection.ImageName = newImageName;
                 detection.ImageUrl = Path.Combine("https://verified-duly-katydid.ngrok-free.app//images", newImageName);
             }
-            
 
             using (var stream = new FileStream(path, FileMode.Create))
             {
@@ -119,6 +124,21 @@ namespace aspnetbackend.Controllers
                 }
             }
 
+            string text = System.IO.File.ReadAllText(@"wwwroot\UserToken.json");
+            var settings = JsonSerializer.Deserialize<UserToken>(text);
+            var token = settings.Token;
+            var message = new Message()
+            {
+                Token = token,
+                Notification = new Notification
+                {
+                    Title = String.Concat(detection.Category, "Detected"),
+                    Body = "Tap to view detections"
+                }
+
+            };
+            var response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
+
             return CreatedAtAction("GetDetection", new { id = detection.timeStamp }, detection);
         }
 
@@ -135,10 +155,27 @@ namespace aspnetbackend.Controllers
             {
                 return NotFound();
             }
+            //Console.WriteLine(detection.Image.FileName);
+            //string imgName = string.Concat(detection.Image.FileName, ".jpg"); // image name SHOULD BE removed or automatically populated within detection context in later DB migration
+            string imgPath = Path.Combine(@"wwwroot\images", detection.ImageName);
+            System.IO.File.Delete(imgPath);
 
             _context.Detections.Remove(detection);
             await _context.SaveChangesAsync();
 
+            return NoContent();
+        }
+
+        // PUT: edits userToken to current userToken being used, called during app startup
+        [HttpPut]
+        public async Task<IActionResult> PutToken(string token)
+        {
+            Console.WriteLine("Entering PUT API call");
+            string text = System.IO.File.ReadAllText(@"wwwroot\UserToken.json");
+            var settings = JsonSerializer.Deserialize<UserToken>(text);
+            settings.Token = token;
+            string settingsString = JsonSerializer.Serialize(settings);
+            System.IO.File.WriteAllText(@"wwwroot\UserToken.json", settingsString);
             return NoContent();
         }
 

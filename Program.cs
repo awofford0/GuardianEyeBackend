@@ -22,6 +22,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+ReadFirebaseAdminSDK();
+
 app.UseStaticFiles();
 app.UseSwagger();
 
@@ -38,7 +40,7 @@ app.MapControllers();
 
 app.Run();
 
-async void ReadFirebaseAdminSDK()
+void ReadFirebaseAdminSDK()
 {
     if (FirebaseMessaging.DefaultInstance == null)
     {
